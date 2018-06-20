@@ -65,14 +65,39 @@ class App extends Component {
           "starred": true,
           "labels": []
         }
-      ]
+      ],
+    checked: 0,
+  }
+
+  starHandler = (index) => {
+    let messageArr = [...this.state.messages]
+      if (messageArr[index].starred) {
+        messageArr[index].starred = false
+      }else{
+        messageArr[index].starred = true
+      }
+      this.setState({messages: messageArr})
+  }
+
+  checkBoxHandler = (index) => {
+    let messageArr = [...this.state.messages]
+    if (messageArr[index].checked) {
+      messageArr[index].checked = false
+    }else{
+      messageArr[index].checked = true
+    }
+    this.setState({messages: messageArr})
   }
 
   render() {
+    let unreadMessages = this.state.messages.filter((message) => !message.read).length
     return (
       <div className="App">
-        <Toolbar />
-        <MessageList messages={this.state.messages} />
+        <Toolbar unread={unreadMessages}/>
+        <MessageList
+        starClick={this.starHandler}
+        checkClick={this.checkBoxHandler} 
+        messages={this.state.messages} />
       </div>
     );
   }
