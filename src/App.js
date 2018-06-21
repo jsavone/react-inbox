@@ -65,8 +65,7 @@ class App extends Component {
           "starred": true,
           "labels": []
         }
-      ],
-    checked: 0,
+      ]
   }
 
   starHandler = (index) => {
@@ -89,14 +88,93 @@ class App extends Component {
     this.setState({messages: messageArr})
   }
 
+  checkAllHandler = (checked, total) => {
+    if (checked < total) {
+      let checkMessages = [...this.state.messages]
+      checkMessages = checkMessages.map(message => {
+        message.checked = true
+        return message
+      })
+      this.setState({messages: checkMessages})
+    }else{
+      let checkMessages = [...this.state.messages]
+      checkMessages = checkMessages.map(message => {
+        message.checked = false
+        return message
+      })
+      this.setState({messages: checkMessages})
+    }
+  }
+
+  markReadHandler = () => {
+    let readMessages = [...this.state.messages].map(message => {
+      message.checked ? message.read = true : message.read
+      return message
+    })
+    this.setState({messages: readMessages})
+  }
+
+  markUnreadHandler = () => {
+    let unreadMessages = [...this.state.messages].map(message => {
+      message.checked ? message.read = false : message.read
+      return message
+    })
+    this.setState({messages: unreadMessages})
+  }
+
+  markUnreadHandler = () => {
+    let unreadMessages = [...this.state.messages].map(message => {
+      message.checked ? message.read = false : message.read
+      return message
+    })
+    this.setState({messages: unreadMessages})
+  }
+
+  deleteMessageHandler = () => {
+    let deleteMessages = [...this.state.messages].filter(message => !message.checked)
+    this.setState({messages: deleteMessages})
+  }
+
+  applyLabelHandler = (event) => {
+    let applyLabel = [...this.state.messages].map(message => {
+      if(message.checked && message.labels.indexOf(event.target.value)===-1) {
+        message.labels = [...message.labels, event.target.value]
+      }
+      return message
+    })
+    this.setState({messages: applyLabel})
+  }
+
+  removeLabelHandler = (event) => {
+    let removeLabel = [...this.state.messages].map(message => {
+      if(message.checked && message.labels.indexOf(event.target.value)!==-1) {
+        message.labels = message.labels.filter(label => label !==event.target.value)
+      }
+      return message
+    })
+    this.setState({messages: removeLabel})
+  }
+
   render() {
     let unreadMessages = this.state.messages.filter((message) => !message.read).length
+    let checkedMessages = this.state.messages.filter((message) => message.checked).length
+    let totalMessages = this.state.messages.length
     return (
       <div className="App">
-        <Toolbar unread={unreadMessages}/>
+        <Toolbar
+        unread={unreadMessages}
+        checked={checkedMessages}
+        total={totalMessages}
+        markRead={this.markReadHandler}
+        markUnread={this.markUnreadHandler}
+        deleteMessage={this.deleteMessageHandler}
+        applyLabel={this.applyLabelHandler}
+        removeLabel={this.removeLabelHandler}
+        checkAll={()=> this.checkAllHandler(checkedMessages, totalMessages)} />
+
         <MessageList
         starClick={this.starHandler}
-        checkClick={this.checkBoxHandler} 
+        checkClick={this.checkBoxHandler}
         messages={this.state.messages} />
       </div>
     );

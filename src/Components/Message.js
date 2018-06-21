@@ -11,9 +11,10 @@ class Message extends Component {
     }
 
     let readStatus = this.props.message.read ? "row message read" : "row message unread"
-
+    let checkedToggle = ''
     if (this.props.message.checked) {
       readStatus+=' selected'
+      checkedToggle = 'checked'
     }
 
     let starStatus = this.props.message.starred ? "star fa fa-star" : "star fa fa-star-o"
@@ -24,7 +25,7 @@ class Message extends Component {
           <div className="col-xs-1">
             <div className="row">
               <div className="col-xs-2">
-                <input type="checkbox" onClick={this.props.checkClick} />
+                <input type="checkbox" onClick={this.props.checkClick} checked={checkedToggle} />
               </div>
               <div className="col-xs-2">
                 <i onClick={this.props.starClick} className={starStatus}></i>
