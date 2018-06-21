@@ -108,7 +108,9 @@ class App extends Component {
 
   markReadHandler = () => {
     let readMessages = [...this.state.messages].map(message => {
-      message.checked ? message.read = true : message.read
+      if (message.checked) {
+        message.read = true
+      }
       return message
     })
     this.setState({messages: readMessages})
@@ -116,15 +118,9 @@ class App extends Component {
 
   markUnreadHandler = () => {
     let unreadMessages = [...this.state.messages].map(message => {
-      message.checked ? message.read = false : message.read
-      return message
-    })
-    this.setState({messages: unreadMessages})
-  }
-
-  markUnreadHandler = () => {
-    let unreadMessages = [...this.state.messages].map(message => {
-      message.checked ? message.read = false : message.read
+      if (message.checked) {
+        message.read = false
+      }
       return message
     })
     this.setState({messages: unreadMessages})

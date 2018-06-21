@@ -1,16 +1,15 @@
-import React, { Component } from 'react'
+import React from 'react'
 
-class Toolbar extends Component {
+const Toolbar = (props) => {
 
-  render() {
     let disabled = 'disabled'
-    let selectAll = 'fa fa-square-o'
-    if (this.props.checked > 0 && this.props.checked < this.props.total) {
+    let selectAll = 'fa-square-o'
+    if (props.checked > 0 && props.checked < props.total) {
       disabled = ''
-      selectAll = 'fa fa-minus-square-o'
-    }else if (this.props.checked === this.props.total){
+      selectAll = 'fa-minus-square-o'
+    }else if (props.checked === props.total){
       disabled = ''
-      selectAll = 'fa fa-check-square-o'
+      selectAll = 'fa-check-square-o'
     }
 
     return(
@@ -18,37 +17,37 @@ class Toolbar extends Component {
         <div className="row toolbar">
           <div className="col-md-12">
             <p className="pull-right">
-              <span className="badge badge">{this.props.unread}</span>
-              unread {this.props.unread == 1 ? 'message' : 'messages'}
+              <span className="badge badge">{props.unread}</span>
+              unread {props.unread === 1 ? 'message' : 'messages'}
             </p>
 
             <button className="btn btn-default">
-              <i className={selectAll} onClick={this.props.checkAll}></i>
+              <i className={'fa ' +selectAll} onClick={props.checkAll}></i>
             </button>
 
-            <button className="btn btn-default" disabled={disabled} onClick={this.props.markRead}>
+            <button className="btn btn-default" disabled={disabled} onClick={props.markRead}>
               Mark As Read
             </button>
 
-            <button className="btn btn-default" disabled={disabled} onClick={this.props.markUnread}>
+            <button className="btn btn-default" disabled={disabled} onClick={props.markUnread}>
               Mark As Unread
             </button>
 
-            <select className="form-control label-select" disabled={disabled} onChange={this.props.applyLabel} value='Apply label'>
+            <select className="form-control label-select" disabled={disabled} onChange={props.applyLabel} value='Apply label'>
               <option>Apply label</option>
               <option value="dev">dev</option>
               <option value="personal">personal</option>
               <option value="gschool">gschool</option>
             </select>
 
-            <select className="form-control label-select" disabled={disabled} onChange={this.props.removeLabel} value='Remove label'>
+            <select className="form-control label-select" disabled={disabled} onChange={props.removeLabel} value='Remove label'>
               <option>Remove label</option>
               <option value="dev">dev</option>
               <option value="personal">personal</option>
               <option value="gschool">gschool</option>
             </select>
 
-            <button className="btn btn-default" disabled={disabled} onClick={this.props.deleteMessage}>
+            <button className="btn btn-default" disabled={disabled} onClick={props.deleteMessage}>
               <i className="fa fa-trash-o"></i>
             </button>
           </div>
@@ -57,6 +56,5 @@ class Toolbar extends Component {
     )
 
   }
-}
 
 export default Toolbar
