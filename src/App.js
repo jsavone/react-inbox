@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Toolbar from './Components/Toolbar.js'
 import MessageList from './Components/MessageList.js'
+import axios from 'axios'
 
 class App extends Component {
   state = {
@@ -11,32 +12,15 @@ class App extends Component {
   }
 
   async componentDidMount() {
-  const messagesResponse = await fetch('http://localhost:8082/api/messages')
-  let messagesJson = await messagesResponse.json()
-  messagesJson = messagesJson.map(message => {
-    message.selected = false
-    return message
-  })
-  this.setState({messages: messagesJson})
-}
+  axios(`http://localhost:8082/api/messages`)
+  .then(response => this.setState({ messages: response.data}))
+  }
 
   starHandler = async (index) => {
-
-    const itemResponse = await fetch('http://localhost:8082/api/messages', {
-      method: 'PATCH',
-      body: JSON.stringify({"messageIds": [this.state.messages[index].id], "command": "star"}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
-    })
-
-    let itemJson = await itemResponse.json()
-    itemJson = itemJson.map(message => {
-      message.selected = false
-      return message
-    })
-    this.setState({messages: itemJson})
+    axios.patch(`http://localhost:8082/api/messages`, {"messageIds": [this.state.messages[index].id], "command": "star"})
+      .then(response => {
+        this.setState({messages: response.data})
+      })
   }
 
   composeFormToggle = () => {
@@ -44,22 +28,10 @@ class App extends Component {
   }
 
   newMessage = async (message) => {
-
-    const itemResponse = await fetch('http://localhost:8082/api/messages', {
-      method: 'POST',
-      body: JSON.stringify(message),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
-    })
-
-    let itemJson = await itemResponse.json()
-    itemJson = itemJson.map(message => {
-      message.selected = false
-      return message
-    })
-    this.setState({messages: itemJson})
+    axios.post(`http://localhost:8082/api/messages`, message)
+      .then(response => {
+        this.setState({messages: response.data})
+      })
   }
 
   checkBoxHandler = (id) => {
@@ -82,84 +54,38 @@ class App extends Component {
   }
 
   markReadHandler = async () => {
-    let checkedMessages = [...this.state.checked]
-
-    const itemResponse = await fetch('http://localhost:8082/api/messages', {
-      method: 'PATCH',
-      body: JSON.stringify({"messageIds": checkedMessages, "command": "read", "read": true}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
-    })
-
-    let itemJson = await itemResponse.json()
-    this.setState({messages: itemJson})
+    axios.patch(`http://localhost:8082/api/messages`, {"messageIds": [...this.state.checked], "command": "read", "read": true})
+      .then(response => {
+        this.setState({messages: response.data})
+      })
   }
 
   markUnreadHandler = async () => {
-    let checkedMessages = [...this.state.checked]
-
-    const itemResponse = await fetch('http://localhost:8082/api/messages', {
-      method: 'PATCH',
-      body: JSON.stringify({"messageIds": checkedMessages, "command": "read", "read": false}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
-    })
-
-    let itemJson = await itemResponse.json()
-    this.setState({messages: itemJson})
+    axios.patch(`http://localhost:8082/api/messages`, {"messageIds": [...this.state.checked], "command": "read", "read": false})
+      .then(response => {
+        this.setState({messages: response.data})
+      })
   }
 
   deleteMessageHandler = async () => {
-    let checkedMessages = [...this.state.checked]
-
-    const itemResponse = await fetch('http://localhost:8082/api/messages', {
-      method: 'PATCH',
-      body: JSON.stringify({"messageIds": checkedMessages, "command": "delete"}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
-    })
-
-    let itemJson = await itemResponse.json()
-
-    this.setState({messages: itemJson, checked: []})
+    axios.patch(`http://localhost:8082/api/messages`, {"messageIds": [...this.state.checked], "command": "delete"})
+      .then(response => {
+        this.setState({messages: response.data, checked: []})
+      })
   }
 
   applyLabelHandler = async (event) => {
-    let checkedMessages = [...this.state.checked]
-
-    const itemResponse = await fetch('http://localhost:8082/api/messages', {
-      method: 'PATCH',
-      body: JSON.stringify({"messageIds": checkedMessages, "command": "addLabel", "label": event.target.value}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
-    })
-
-    let itemJson = await itemResponse.json()
-    this.setState({messages: itemJson})
+    axios.patch(`http://localhost:8082/api/messages`, {"messageIds": [...this.state.checked], "command": "addLabel", "label": event.target.value})
+      .then(response => {
+        this.setState({messages: response.data})
+      })
   }
 
   removeLabelHandler = async (event) => {
-    let checkedMessages = [...this.state.checked]
-
-    const itemResponse = await fetch('http://localhost:8082/api/messages', {
-      method: 'PATCH',
-      body: JSON.stringify({"messageIds": checkedMessages, "command": "removeLabel", "label": event.target.value}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
-    })
-
-    let itemJson = await itemResponse.json()
-    this.setState({messages: itemJson})
+    axios.patch(`http://localhost:8082/api/messages`, {"messageIds": [...this.state.checked], "command": "removeLabel", "label": event.target.value})
+      .then(response => {
+        this.setState({messages: response.data})
+      })
   }
 
   render() {
