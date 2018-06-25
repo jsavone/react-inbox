@@ -1,4 +1,5 @@
 import React from 'react'
+import MessageBody from './MessageBody'
 
 const Message = (props) => {
 
@@ -12,8 +13,7 @@ const Message = (props) => {
 
     let readStatus = props.message.read ? "read" : "unread"
     let checkedToggle = ''
-
-    if (props.message.checked) {
+    if (props.checked.includes(props.message.id)) {
       readStatus+=' selected'
       checkedToggle = 'checked'
     }
@@ -26,7 +26,7 @@ const Message = (props) => {
           <div className="col-xs-1">
             <div className="row">
               <div className="col-xs-2">
-                <input type="checkbox" onClick={props.checkClick} checked={checkedToggle} />
+                <input type="checkbox" onChange={props.checkClick} checked={checkedToggle} />
               </div>
               <div className="col-xs-2">
                 <i onClick={props.starClick} className={'star fa '+starStatus}></i>
@@ -35,14 +35,13 @@ const Message = (props) => {
           </div>
           <div className="col-xs-11">
           {labels}
-            <a href="#">
+            <a href="#" onClick={props.expandClick}>
               {props.message.subject}
             </a>
           </div>
         </div>
+        {props.index === props.expanded ? <MessageBody message={props.message}/> : null}
       </div>
     )
-
-  }
-
+}
 export default Message

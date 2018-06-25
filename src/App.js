@@ -5,162 +5,174 @@ import MessageList from './Components/MessageList.js'
 
 class App extends Component {
   state = {
-    messages:
-      [
-        {
-          "id": 1,
-          "subject": "You can't input the protocol without calculating the mobile RSS protocol!",
-          "read": false,
-          "starred": true,
-          "labels": ["dev", "personal"]
-        },
-        {
-          "id": 2,
-          "subject": "connecting the system won't do anything, we need to input the mobile AI panel!",
-          "read": false,
-          "starred": false,
-          "selected": true,
-          "labels": []
-        },
-        {
-          "id": 3,
-          "subject": "Use the 1080p HTTP feed, then you can parse the cross-platform hard drive!",
-          "read": false,
-          "starred": true,
-          "labels": ["dev"]
-        },
-        {
-          "id": 4,
-          "subject": "We need to program the primary TCP hard drive!",
-          "read": true,
-          "starred": false,
-          "selected": true,
-          "labels": []
-        },
-        {
-          "id": 5,
-          "subject": "If we override the interface, we can get to the HTTP feed through the virtual EXE interface!",
-          "read": false,
-          "starred": false,
-          "labels": ["personal"]
-        },
-        {
-          "id": 6,
-          "subject": "We need to back up the wireless GB driver!",
-          "read": true,
-          "starred": true,
-          "labels": []
-        },
-        {
-          "id": 7,
-          "subject": "We need to index the mobile PCI bus!",
-          "read": true,
-          "starred": false,
-          "labels": ["dev", "personal"]
-        },
-        {
-          "id": 8,
-          "subject": "If we connect the sensor, we can get to the HDD port through the redundant IB firewall!",
-          "read": true,
-          "starred": true,
-          "labels": []
-        }
-      ]
+    messages: [],
+    showCompose: false,
+    checked: []
   }
 
-  starHandler = (index) => {
-    let messageArr = [...this.state.messages]
-      if (messageArr[index].starred) {
-        messageArr[index].starred = false
-      }else{
-        messageArr[index].starred = true
+  async componentDidMount() {
+  const messagesResponse = await fetch('http://localhost:8082/api/messages')
+  let messagesJson = await messagesResponse.json()
+  messagesJson = messagesJson.map(message => {
+    message.selected = false
+    return message
+  })
+  this.setState({messages: messagesJson})
+}
+
+  starHandler = async (index) => {
+
+    const itemResponse = await fetch('http://localhost:8082/api/messages', {
+      method: 'PATCH',
+      body: JSON.stringify({"messageIds": [this.state.messages[index].id], "command": "star"}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       }
-      this.setState({messages: messageArr})
+    })
+
+    let itemJson = await itemResponse.json()
+    itemJson = itemJson.map(message => {
+      message.selected = false
+      return message
+    })
+    this.setState({messages: itemJson})
   }
 
-  checkBoxHandler = (index) => {
-    let messageArr = [...this.state.messages]
-    if (messageArr[index].checked) {
-      messageArr[index].checked = false
+  composeFormToggle = () => {
+    this.setState({showCompose: !this.state.showCompose})
+  }
+
+  newMessage = async (message) => {
+
+    const itemResponse = await fetch('http://localhost:8082/api/messages', {
+      method: 'POST',
+      body: JSON.stringify(message),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    })
+
+    let itemJson = await itemResponse.json()
+    itemJson = itemJson.map(message => {
+      message.selected = false
+      return message
+    })
+    this.setState({messages: itemJson})
+  }
+
+  checkBoxHandler = (id) => {
+    let messageChecked = [...this.state.checked]
+    if (messageChecked.includes(id)) {
+      messageChecked = messageChecked.filter(checked => checked!==id)
+      this.setState({checked: messageChecked})
     }else{
-      messageArr[index].checked = true
+      this.setState({checked: [...this.state.checked, id]})
     }
-    this.setState({messages: messageArr})
   }
 
   checkAllHandler = (checked, total) => {
     if (checked < total) {
-      let checkMessages = [...this.state.messages]
-      checkMessages = checkMessages.map(message => {
-        message.checked = true
-        return message
-      })
-      this.setState({messages: checkMessages})
+      let checkAllMessages = [...this.state.messages].map(message => message.id)
+      this.setState({checked: checkAllMessages})
     }else{
-      let checkMessages = [...this.state.messages]
-      checkMessages = checkMessages.map(message => {
-        message.checked = false
-        return message
-      })
-      this.setState({messages: checkMessages})
+      this.setState({checked: []})
     }
   }
 
-  markReadHandler = () => {
-    let readMessages = [...this.state.messages].map(message => {
-      if (message.checked) {
-        message.read = true
+  markReadHandler = async () => {
+    let checkedMessages = [...this.state.checked]
+
+    const itemResponse = await fetch('http://localhost:8082/api/messages', {
+      method: 'PATCH',
+      body: JSON.stringify({"messageIds": checkedMessages, "command": "read", "read": true}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       }
-      return message
     })
-    this.setState({messages: readMessages})
+
+    let itemJson = await itemResponse.json()
+    this.setState({messages: itemJson})
   }
 
-  markUnreadHandler = () => {
-    let unreadMessages = [...this.state.messages].map(message => {
-      if (message.checked) {
-        message.read = false
+  markUnreadHandler = async () => {
+    let checkedMessages = [...this.state.checked]
+
+    const itemResponse = await fetch('http://localhost:8082/api/messages', {
+      method: 'PATCH',
+      body: JSON.stringify({"messageIds": checkedMessages, "command": "read", "read": false}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       }
-      return message
     })
-    this.setState({messages: unreadMessages})
+
+    let itemJson = await itemResponse.json()
+    this.setState({messages: itemJson})
   }
 
-  deleteMessageHandler = () => {
-    let deleteMessages = [...this.state.messages].filter(message => !message.checked)
-    this.setState({messages: deleteMessages})
+  deleteMessageHandler = async () => {
+    let checkedMessages = [...this.state.checked]
+
+    const itemResponse = await fetch('http://localhost:8082/api/messages', {
+      method: 'PATCH',
+      body: JSON.stringify({"messageIds": checkedMessages, "command": "delete"}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    })
+
+    let itemJson = await itemResponse.json()
+
+    this.setState({messages: itemJson, checked: []})
   }
 
-  applyLabelHandler = (event) => {
-    let applyLabel = [...this.state.messages].map(message => {
-      if(message.checked && message.labels.indexOf(event.target.value)===-1) {
-        message.labels = [...message.labels, event.target.value]
+  applyLabelHandler = async (event) => {
+    let checkedMessages = [...this.state.checked]
+
+    const itemResponse = await fetch('http://localhost:8082/api/messages', {
+      method: 'PATCH',
+      body: JSON.stringify({"messageIds": checkedMessages, "command": "addLabel", "label": event.target.value}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       }
-      return message
     })
-    this.setState({messages: applyLabel})
+
+    let itemJson = await itemResponse.json()
+    this.setState({messages: itemJson})
   }
 
-  removeLabelHandler = (event) => {
-    let removeLabel = [...this.state.messages].map(message => {
-      if(message.checked && message.labels.indexOf(event.target.value)!==-1) {
-        message.labels = message.labels.filter(label => label !==event.target.value)
+  removeLabelHandler = async (event) => {
+    let checkedMessages = [...this.state.checked]
+
+    const itemResponse = await fetch('http://localhost:8082/api/messages', {
+      method: 'PATCH',
+      body: JSON.stringify({"messageIds": checkedMessages, "command": "removeLabel", "label": event.target.value}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       }
-      return message
     })
-    this.setState({messages: removeLabel})
+
+    let itemJson = await itemResponse.json()
+    this.setState({messages: itemJson})
   }
 
   render() {
     let unreadMessages = this.state.messages.filter((message) => !message.read).length
-    let checkedMessages = this.state.messages.filter((message) => message.checked).length
+    let checkedMessages = this.state.checked.length
     let totalMessages = this.state.messages.length
     return (
       <div className="App">
         <Toolbar
         unread={unreadMessages}
-        checked={checkedMessages}
         total={totalMessages}
+        checked={checkedMessages}
+        showCompose = {this.composeFormToggle}
         markRead={this.markReadHandler}
         markUnread={this.markUnreadHandler}
         deleteMessage={this.deleteMessageHandler}
@@ -169,9 +181,13 @@ class App extends Component {
         checkAll={()=> this.checkAllHandler(checkedMessages, totalMessages)} />
 
         <MessageList
+        checked={this.state.checked}
         starClick={this.starHandler}
         checkClick={this.checkBoxHandler}
-        messages={this.state.messages} />
+        messages={this.state.messages}
+        showCompose={this.state.showCompose}
+        newMessage={this.newMessage}
+        state={this.state}/>
       </div>
     );
   }
